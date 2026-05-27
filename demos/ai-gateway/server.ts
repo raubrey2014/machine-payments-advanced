@@ -51,13 +51,13 @@ mppx.onPaymentSuccess(async ({ receipt, credential }) => {
     {
       amount: amountInCents,
       currency: "usd",
-      payment_method_data: {
-        type: "crypto",
+      mode: "transaction_verification",
+      transaction_verification_options: {
         transaction_hash: sr.txHash,
         network: "tempo",
-      } as any,
+      },
       confirm: true,
-    },
+    } as any,
     { idempotencyKey: sr.txHash },
   );
 
