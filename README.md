@@ -7,3 +7,4 @@ Demos exploring [MPP](https://mpp.dev) session payments on Tempo.
 | Demo | Description |
 |------|-------------|
 | [ai-gateway](demos/ai-gateway/) | OpenAI proxy that charges per token via MPP sessions, with optional Stripe settlement on close |
+| [subscription-gateway](demos/subscription-gateway/) | Subscription-gated API using MPP recurring payments, with optional Stripe PaymentIntent per period |
