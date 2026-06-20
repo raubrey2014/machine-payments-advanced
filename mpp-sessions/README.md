@@ -1,22 +1,32 @@
-# MPP Sessions Demo
+# MPP Sessions
 
-Session-based streaming payments where the client pays per-token as content is delivered.
+Session-based payments where the client deposits a lump sum upfront and pays incrementally per unit (token, request, etc.) via off-chain vouchers. The channel settles on-chain when closed, returning any unspent deposit.
 
 ## Structure
 
 ```
 mpp-sessions/
 └── tempo/
-    └── just-paymentintent-on-session-close/   # Tempo sessions, PI created on channel close
+    ├── streamed-payments/          # SSE-based, per-token billing during a continuous stream
+    │   └── full-lifecycle/
+    └── pay-as-you-go/              # Plain HTTP, per-request billing
+        └── full-lifecycle/
 ```
 
-## Naming
+## Two session patterns
 
-- **just-paymentintent** — Stripe integration is a single PI recording the total session spend
-- **on-session-close** — the PI is created when the channel closes (not per-token)
+### Streamed payments (`streamed-payments/`)
 
-## How it works
+The server opens a persistent SSE connection and charges per token as content is yielded. The client uses `session.sse()`. Good for LLM token streams and live data feeds.
 
-The client opens a Tempo channel, streams tokens, sends incremental vouchers as it consumes content, then closes the session. On close, the server creates a Stripe PaymentIntent with `transaction_verification` to record the total on-chain settlement.
+See guide: https://mpp.dev/guides/streamed-payments
 
-Stripe sees one PI per session — not per token. The on-chain settlement is the source of truth; the PI is a verified ledger entry.
+### Pay-as-you-go (`pay-as-you-go/`)
+
+Each request is an independent HTTP call charged via `mppx.session()` middleware. The channel is opened on the first request and reused across many calls. The client uses `session.fetch()`. Good for photo APIs, search, or any per-call billing.
+
+See guide: https://mpp.dev/guides/pay-as-you-go
+
+## Stripe integration
+
+See `API-REVIEW.md` for the full design discussion on how to model the session lifecycle in Stripe PaymentIntents.
